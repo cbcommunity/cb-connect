@@ -59,7 +59,7 @@
 					}
 				],
 				"url": {
-					"raw": "https://api-{{host}}/integrationServices/v3/device?",
+					"raw": "https://api-{{host}}/integrationServices/v3/device",
 					"protocol": "https",
 					"host": [
 						"api-{{host}}"
