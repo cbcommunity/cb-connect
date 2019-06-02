@@ -1,0 +1,875 @@
+{
+	"info": {
+		"_postman_id": "c54671b1-aad9-4ce0-b47c-34d0da79f202",
+		"name": "CB Connect 2019",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Devices",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"Number of Devices: \" + jsonData.results.length);",
+							"",
+							"var subset = [];",
+							"",
+							"jsonData.results.forEach(function(row, index){",
+							"    subset[index] = { \"name\":row.name, \"deviceID\":row.deviceId, \"policyName\": row.policyName} ;",
+							"});",
+							"",
+							"console.log(subset);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4418c487-0444-4080-a680-b3d66405424e",
+						"exec": [
+							"/*var device_names = pm.variables.get(\"device_names\");",
+							"",
+							"//Extract Keys from process hashes",
+							"var device_names_hosts = Object.keys(device_names);",
+							"",
+							"//print keys",
+							"console.log(device_names_hosts);",
+							"",
+							"//print first key",
+							"console.log(device_names_hosts[0]);",
+							"",
+							"//set hash",
+							"pm.environment.set(\"device\", device_names_hosts[0]); */"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					}
+				],
+				"url": {
+					"raw": "https://api-{{host}}/integrationServices/v3/device?",
+					"protocol": "https",
+					"host": [
+						"api-{{host}}"
+					],
+					"path": [
+						"integrationServices",
+						"v3",
+						"device"
+					],
+					"query": [
+						{
+							"key": "hostName",
+							"value": "{{device}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Policies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"console.log(\"Number of Policies: \" + jsonData.results.length);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					}
+				],
+				"url": {
+					"raw": "https://api-{{host}}/integrationServices/v3/policy",
+					"protocol": "https",
+					"host": [
+						"api-{{host}}"
+					],
+					"path": [
+						"integrationServices",
+						"v3",
+						"policy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TH Process Search parent_name=powershell",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var moment = require('moment');",
+							"",
+							"pm.environment.set(\"query_id\", jsonData.query_id);",
+							"",
+							"console.log(\"ThreatHunter Query ID has been set to: \" + pm.environment.get(\"query_id\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "84b7b655-836e-4415-8a49-11d10feb12a5",
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.environment.set(\"current_timestamp\", moment().valueOf());",
+							"console.log(\"Current Timestamp set to: \" + pm.environment.get(\"current_timestamp\"));",
+							"",
+							"//1 day   = 86400",
+							"//3 days  = 259200000",
+							"//5 days  = 432000000",
+							"//30 days = 2592000000",
+							"",
+							"var cTime = pm.environment.get(\"current_timestamp\"); ",
+							"var dTime = cTime - 259200000;",
+							"",
+							"pm.environment.set(\"delta_timestamp\", dTime);",
+							"console.log(\"Min Timestamp set to: \" + pm.environment.get(\"delta_timestamp\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"search_params\": {\n        \"q\": \"(parent_name: powershell.exe)\",\n        \"rows\": 5000,\n        \"cb.min_device_timestamp\": {{delta_timestamp}},\n        \"cb.max_device_timestamp\": {{current_timestamp}},\n        \"facet\": true,\n        \"facet.field\": [\n            \"process_name\",\n            \"process_effective_reputation\",\n            \"process_hash\",\n            \"device_name\",\n            \"process_username\",\n            \"device_policy\",\n            \"parent_name\",\n            \"parent_effective_reputation\",\n            \"ttp\",\n            \"netconn_location\",\n            \"netconn_ipv4\",\n            \"netconn_port\"\n        ],\n        \"facet.mincount\": 1,\n        \"sort\": \"device_timestamp desc\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/threathunter/search/v1/orgs/{{org_key}}/processes/search_jobs",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"threathunter",
+						"search",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"processes",
+						"search_jobs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TH Get Process Search Results",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var moment = require('moment');",
+							"",
+							"console.log(\"Retrieving ThreatHunter Search Results\");",
+							"//console.log(\"Response[] Size: \" + jsonData.data.length);",
+							"",
+							"var facetsHashes = jsonData.facets.facet_fields.process_hash;",
+							"var facetsDevices = jsonData.facets.facet_fields.device_name;",
+							"var facetsProcesses = jsonData.facets.facet_fields.process_name;",
+							"facetsProcesses = Object.keys(facetsProcesses);",
+							"",
+							"console.log(\"List of Processes: \");",
+							"console.log(facetsProcesses);",
+							"",
+							"",
+							"pm.environment.set(\"process_hashes\", facetsHashes);",
+							"pm.environment.set(\"device_names\", facetsDevices);",
+							"",
+							"console.log(\"List of Process Hashes: \");",
+							"console.log(pm.variables.get(\"process_hashes\"));",
+							"",
+							"console.log(\"List of Device Names: \");",
+							"console.log(pm.variables.get(\"device_names\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "82222278-f933-408d-903a-bc468dfadd6e",
+						"exec": [
+							"/*var moment = require('moment');",
+							"",
+							"console.log(\"Current Timestamp: \" + moment().valueOf() + \" \" + moment().format());*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					}
+				],
+				"url": {
+					"raw": "https://defense-{{host}}/threathunter/search/v1/orgs/{{org_key}}/processes/search_jobs/{{query_id}}/results?start=0&rows=50",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"threathunter",
+						"search",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"processes",
+						"search_jobs",
+						"{{query_id}}",
+						"results"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "0"
+						},
+						{
+							"key": "rows",
+							"value": "50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TH Process Search process_name=mimikatz",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var moment = require('moment');",
+							"",
+							"pm.environment.set(\"query_id\", jsonData.query_id);",
+							"",
+							"console.log(\"Current Timestamp: \" + moment().valueOf() + \" \" + moment().format());",
+							"console.log(\"ThreatHunter Query ID has been set to: \" + pm.environment.get(\"query_id\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3c091e40-f541-4d70-8032-f2e9ba9d2b19",
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.environment.set(\"current_timestamp\", moment().valueOf());",
+							"console.log(\"Current Timestamp set to: \" + pm.environment.get(\"current_timestamp\"));",
+							"",
+							"//1 day   = 86400",
+							"//3 days  = 259200000",
+							"//5 days  = 432000000",
+							"//30 days = 2592000000",
+							"",
+							"var cTime = pm.environment.get(\"current_timestamp\"); ",
+							"var dTime = cTime - 259200000;",
+							"",
+							"pm.environment.set(\"delta_timestamp\", dTime);",
+							"console.log(\"Delta Timestamp set to: \" + pm.environment.get(\"delta_timestamp\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "",
+						"type": "text",
+						"value": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"search_params\": {\n        \"q\": \"(process_name: mimikatz.exe)\",\n        \"rows\": 500,\n        \"cb.min_device_timestamp\": {{delta_timestamp}},\n        \"cb.max_device_timestamp\": {{current_timestamp}},\n        \"facet\": true,\n        \"facet.field\": [\n            \"process_name\",\n            \"process_effective_reputation\",\n            \"process_hash\",\n            \"device_name\",\n            \"process_username\",\n            \"device_policy\",\n            \"parent_name\",\n            \"parent_effective_reputation\",\n            \"ttp\",\n            \"netconn_location\",\n            \"netconn_ipv4\",\n            \"netconn_port\"\n        ],\n        \"facet.mincount\": 1,\n        \"sort\": \"device_timestamp desc\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/threathunter/search/v1/orgs/{{org_key}}/processes/search_jobs",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"threathunter",
+						"search",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"processes",
+						"search_jobs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UBS Get Metadata",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0bb43f64-79d1-4e3b-9b15-76505629d1f3",
+						"exec": [
+							"var process_hashes = pm.variables.get(\"process_hashes\");",
+							"",
+							"//Extract Keys from process hashes",
+							"var process_hashes_keys = Object.keys(process_hashes);",
+							"",
+							"//print keys",
+							"console.log(process_hashes_keys);",
+							"",
+							"//print first key",
+							"console.log(process_hashes_keys[0]);",
+							"",
+							"//set hash",
+							"pm.environment.set(\"hash\", process_hashes_keys[0]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					}
+				],
+				"url": {
+					"raw": "https://defense-{{host}}/ubs/v1/orgs/{{org_key}}/sha256/{{hash}}/metadata",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"ubs",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"sha256",
+						"{{hash}}",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UBS Download",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0bb43f64-79d1-4e3b-9b15-76505629d1f3",
+						"exec": [
+							"var process_hashes = pm.variables.get(\"process_hashes\");",
+							"",
+							"//Extract Keys from process hashes",
+							"var process_hashes_keys = Object.keys(process_hashes);",
+							"",
+							"//print keys",
+							"console.log(process_hashes_keys);",
+							"",
+							"//print first key",
+							"console.log(process_hashes_keys[0]);",
+							"",
+							"//set hash",
+							"pm.environment.set(\"hash\", process_hashes_keys[0]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sha256\": [\n        \"{{hash}}\"\n    ]\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/ubs/v1/orgs/{{org_key}}/file/_download",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"ubs",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"file",
+						"_download"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Device",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var deviceID = jsonData.results[0].deviceId;",
+							"",
+							"pm.environment.set(\"device_id\", deviceID);",
+							"",
+							"console.log(\"Device ID has been set to: \" + pm.variables.get(\"device_id\"));",
+							"",
+							"var subset = [];",
+							"",
+							"jsonData.results.forEach(function(row, index){",
+							"    subset[index] = { \"name\":row.name, \"deviceID\":row.deviceId, \"policyName\": row.policyName} ;",
+							"});",
+							"",
+							"console.log(subset);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4418c487-0444-4080-a680-b3d66405424e",
+						"exec": [
+							"var device_names = pm.variables.get(\"device_names\");",
+							"",
+							"//Extract Keys from process hashes",
+							"var device_names_hosts = Object.keys(device_names);",
+							"",
+							"//print keys",
+							"console.log(device_names_hosts);",
+							"",
+							"//print first key",
+							"console.log(device_names_hosts[0]);",
+							"",
+							"//set hash",
+							"pm.environment.set(\"device\", device_names_hosts[0]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					}
+				],
+				"url": {
+					"raw": "https://api-{{host}}/integrationServices/v3/device?hostName={{device}}",
+					"protocol": "https",
+					"host": [
+						"api-{{host}}"
+					],
+					"path": [
+						"integrationServices",
+						"v3",
+						"device"
+					],
+					"query": [
+						{
+							"key": "hostName",
+							"value": "{{device}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Switch Device Policy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fc90455-1f1f-4252-ac7d-40239eccb9e6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4418c487-0444-4080-a680-b3d66405424e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{secret_key}}/{{api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"policyName\": \"sm-restrictive\"}"
+				},
+				"url": {
+					"raw": "https://api-{{host}}/integrationServices/v3/device/{{device_id}}",
+					"protocol": "https",
+					"host": [
+						"api-{{host}}"
+					],
+					"path": [
+						"integrationServices",
+						"v3",
+						"device",
+						"{{device_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LQ: Autoexecs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fad0b844-0ee1-4bae-8c3e-328ab2a87adf",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.environment.set(\"livequery_id\", jsonData.id);",
+							"",
+							"console.log(\"LiveQuery ID has been set to: \" + pm.environment.get(\"livequery_id\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"notify_on_finish\": false,\n    \"name\": \"smultani-connect-1\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT name, path, source FROM autoexec;\"\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LQ: Status of Windows Firewall",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fad0b844-0ee1-4bae-8c3e-328ab2a87adf",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.environment.set(\"livequery_id\", jsonData.id);",
+							"",
+							"console.log(\"LiveQuery ID has been set to: \" + pm.environment.get(\"livequery_id\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"notify_on_finish\": true,\n    \"name\": \"List System Information - smpostman\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT * FROM logged_in_users;\"\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get LiveQuery Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{c_secret_key}}/{{c_api_id}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/8pihevot3cgkjxkqopayyaqwxvzji6ce",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs",
+						"8pihevot3cgkjxkqopayyaqwxvzji6ce"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LQ Results: Autoexecs",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rows\": 50,\n    \"start\": 0\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{Host}}/livequery/v1/orgs/{{org_key}}/runs/8pihevot3cgkjxkqopayyaqwxvzji6ce/results/_search",
+					"protocol": "https",
+					"host": [
+						"defense-{{Host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs",
+						"8pihevot3cgkjxkqopayyaqwxvzji6ce",
+						"results",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LQ Results: Status of Windows Firewall",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rows\": 50,\n    \"start\": 0\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/uqpugdrv1mvqhxyzfcvdcq7wedyflnys/results/_search",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs",
+						"uqpugdrv1mvqhxyzfcvdcq7wedyflnys",
+						"results",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
