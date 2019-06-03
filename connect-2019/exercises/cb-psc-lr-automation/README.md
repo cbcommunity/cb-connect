@@ -1,6 +1,7 @@
 # PSC Live Response Automation Example
 
-This example was presented during CB Connect 2019 at the PSC API
+This example was presented during CB Connect 2019 at the
+"Exploring the Predictive Security Cloud APIs" session on June 4.
 
 This script demonstrates how you can automate the Live Response
 capability in the Carbon Black Predictive Security Cloud to
