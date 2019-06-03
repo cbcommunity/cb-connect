@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1096e4ff-5e01-473e-9530-434e22f7aa0a",
+		"_postman_id": "f6215882-ac92-4d0b-b181-5d1a03836bfa",
 		"name": "CB Connect 2019",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -684,7 +684,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"notify_on_finish\": false,\n    \"name\": \"smultani-connect-1\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT name, path, source FROM autoexec;\"\n}"
+					"raw": "{\n    \"notify_on_finish\": false,\n    \"name\": \"Autoexecs\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT name, path, source FROM autoexec;\"\n}"
 				},
 				"url": {
 					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs",
@@ -738,7 +738,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"notify_on_finish\": true,\n    \"name\": \"List System Information - smpostman\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT * FROM logged_in_users;\"\n}"
+					"raw": "{\n    \"notify_on_finish\": true,\n    \"name\": \"Windows Firewall Status\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"select display_name,status,start_type from services where lower(name) = \\\"mpssvc\\\";\"\n}"
 				},
 				"url": {
 					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs",
