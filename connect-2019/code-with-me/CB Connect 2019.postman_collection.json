@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f6215882-ac92-4d0b-b181-5d1a03836bfa",
+		"_postman_id": "f4b4c424-b220-4a10-bc56-f59ea30e4248",
 		"name": "CB Connect 2019",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -59,7 +59,7 @@
 					}
 				],
 				"url": {
-					"raw": "https://api-{{host}}/integrationServices/v3/device",
+					"raw": "https://api-{{host}}/integrationServices/v3/device?",
 					"protocol": "https",
 					"host": [
 						"api-{{host}}"
@@ -758,6 +758,60 @@
 			"response": []
 		},
 		{
+			"name": "LQ: Python Packages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fad0b844-0ee1-4bae-8c3e-328ab2a87adf",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.environment.set(\"livequery_id\", jsonData.id);",
+							"",
+							"console.log(\"LiveQuery ID has been set to: \" + pm.environment.get(\"livequery_id\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"notify_on_finish\": true,\n    \"name\": \"List of Python Packages\",\n    \"device_filter\": {\n        \"device_types\": [\n            \"LINUX\",\n            \"MAC\",\n            \"WINDOWS\"\n        ]\n    },\n    \"sql\": \"SELECT * FROM python_packages;\"\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get LiveQuery Details",
 			"request": {
 				"method": "GET",
@@ -774,7 +828,7 @@
 					}
 				],
 				"url": {
-					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/8pihevot3cgkjxkqopayyaqwxvzji6ce",
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/cl1v2iy7y3jseoervrdl0ouoc8emo56q",
 					"protocol": "https",
 					"host": [
 						"defense-{{host}}"
@@ -785,7 +839,7 @@
 						"orgs",
 						"{{org_key}}",
 						"runs",
-						"8pihevot3cgkjxkqopayyaqwxvzji6ce"
+						"cl1v2iy7y3jseoervrdl0ouoc8emo56q"
 					]
 				}
 			},
@@ -864,6 +918,46 @@
 						"{{org_key}}",
 						"runs",
 						"uqpugdrv1mvqhxyzfcvdcq7wedyflnys",
+						"results",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LQ Results: Python Packages",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"type": "text",
+						"value": "{{c_secret_key}}/{{c_api_id}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rows\": 50,\n    \"start\": 0\n}"
+				},
+				"url": {
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/cl1v2iy7y3jseoervrdl0ouoc8emo56q/results/_search",
+					"protocol": "https",
+					"host": [
+						"defense-{{host}}"
+					],
+					"path": [
+						"livequery",
+						"v1",
+						"orgs",
+						"{{org_key}}",
+						"runs",
+						"cl1v2iy7y3jseoervrdl0ouoc8emo56q",
 						"results",
 						"_search"
 					]
