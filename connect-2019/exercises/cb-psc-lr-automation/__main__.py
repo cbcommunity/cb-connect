@@ -34,6 +34,7 @@ from datastore import DataStore
 from webapi import get_flask_server
 
 from cbapi.example_helpers import get_cb_defense_object, build_cli_parser
+from cbapi.psc.defense import CbDefenseAPI
 
 import sys
 import logging
@@ -61,7 +62,8 @@ class LiveResponseOrchestrator(object):
             notification_thread = SyntheticNotificationGenerator(self.args.synthetic, self.datastore,
                                                                  poll_interval=poll_interval)
         else:
-            notification_thread = NotificationListener(self.cb, self.datastore, poll_interval=poll_interval)
+            siem_cb = CbDefenseAPI(profile=self.args.siemprofile)
+            notification_thread = NotificationListener(siem_cb, self.datastore, poll_interval=poll_interval)
         notification_thread.start()
 
         # Start five threads to listen for work and do the Live Response
