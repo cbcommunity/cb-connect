@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c54671b1-aad9-4ce0-b47c-34d0da79f202",
+		"_postman_id": "1096e4ff-5e01-473e-9530-434e22f7aa0a",
 		"name": "CB Connect 2019",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -812,10 +812,10 @@
 					"raw": "{\n    \"rows\": 50,\n    \"start\": 0\n}"
 				},
 				"url": {
-					"raw": "https://defense-{{Host}}/livequery/v1/orgs/{{org_key}}/runs/8pihevot3cgkjxkqopayyaqwxvzji6ce/results/_search",
+					"raw": "https://defense-{{host}}/livequery/v1/orgs/{{org_key}}/runs/8pihevot3cgkjxkqopayyaqwxvzji6ce/results/_search",
 					"protocol": "https",
 					"host": [
-						"defense-{{Host}}"
+						"defense-{{host}}"
 					],
 					"path": [
 						"livequery",
