@@ -24,7 +24,7 @@ def get_flask_server(datastore):
     def browser_history(device_id):
         device_id = int(device_id)
         results = datastore.get_result(device_id)
-        if 'browser_history' in results:
+        if 'browser_history' in results and len(results["browser_history"].keys()) > 0:
             user = list(results["browser_history"])[0] # pick the first user
             browser_history = results["browser_history"][user]
             with NamedTemporaryFile(delete=False) as tf:

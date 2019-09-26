@@ -77,7 +77,8 @@ class LiveResponseOrchestrator(object):
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
-            self.datastore.dump_info()
+            # uncomment below to dump out the current state of the database:
+            # self.datastore.dump_info()
             return
 
     def process_notification(self, notification):
