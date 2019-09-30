@@ -62,6 +62,7 @@ class CollectContextWorker(threading.Thread):
     def run_psrecon(self, session):
         run_id = str(uuid.uuid4())
         COMMAND_LINE = "powershell c:\\psrecon\\psrecon.ps1"
+        existing_execution_policy = "Restricted"
         maximum_time = 300                      # max time in seconds before giving up
 
         log.info("Running psrecon - run ID {0}".format(run_id))
@@ -99,6 +100,18 @@ class CollectContextWorker(threading.Thread):
             return None
 
         try:
+            existing_execution_policy = session.create_process("powershell get-executionpolicy").decode("utf8").strip()
+        except Exception:
+            log.exeption("Could not get current execution policy")
+            return None
+
+        try:
+            session.create_process("powershell set-executionpolicy unrestricted")
+        except Exception:
+            log.exception("Could not set unrestricted execution policy")
+            return None
+
+        try:
             session.create_process(COMMAND_LINE, wait_for_output=False,
                                    wait_for_completion=False,
                                    remote_output_file_name="c:\\psrecon\\{0}\\output.txt".format(run_id),
@@ -106,6 +119,8 @@ class CollectContextWorker(threading.Thread):
         except Exception:
             log.exception("Could not launch psrecon")
             return None
+        finally:
+            session.create_process("powershell set-executionpolicy {0}".format(existing_execution_policy))
 
         still_running = True
         start_time = time.time()
